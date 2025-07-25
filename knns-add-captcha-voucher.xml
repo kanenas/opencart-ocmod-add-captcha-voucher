@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+	<modification>
+	<id><![CDATA[[OCMOD] Add Captcha to Voucher]]></id>
+	<name><![CDATA[Add Captcha to Voucher]]></name>
+	<code>knns-add-captcha-voucher</code>
+	<version>0.1.0</version>
+	<author><![CDATA[<font color="#7F458C"><b>kanenas.net (aka Nikolas Branis)</b></font> - nbran@kanenas.net]]></author>
+	<link>https://kanenas.net/</link>
+	<file path="catalog/controller/account/voucher.php" error="log">
+		<operation error="skip">
+			<search><![CDATA[if (isset($this->request->post['agree'])) {]]></search>
+			<add position="before"><![CDATA[
+		// Captcha
+		if ($this->config->get('captcha_' . $this->config->get('config_captcha') . '_status')) {
+			$data['captcha'] = $this->load->controller('extension/captcha/' . $this->config->get('config_captcha'), $this->error);
+		} else {
+			$data['captcha'] = '';
+		}
+			]]></add>
+		</operation>
+		<operation error="skip">
+			<search><![CDATA[if (!isset($this->request->post['agree'])) {]]></search>
+			<add position="before"><![CDATA[
+		// Captcha
+		if ($this->config->get('captcha_' . $this->config->get('config_captcha') . '_status')) {
+			$captcha = $this->load->controller('extension/captcha/' . $this->config->get('config_captcha') . '/validate');
+
+			if ($captcha) {
+				$this->error['captcha'] = $captcha;
+			}
+		}
+			]]></add>
+		</operation>
+	</file>
+	<file path="catalog/view/theme/*/template/account/voucher.twig" error="log">
+		<operation error="skip">
+			<search><![CDATA[<div class="buttons clearfix">]]></search>
+			<add position="before"><![CDATA[            {{ captcha }}]]></add>
+		</operation>
+	</file>
+</modification>
